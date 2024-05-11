@@ -1,8 +1,10 @@
 # Imports
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, ArgumentTypeError
-from colorama import Fore, Back, Style
+from colorama import Fore, Back, Style, just_fix_windows_console
 import httpx
 import json
+
+just_fix_windows_console()
 
 # Basic information that appears when you add -h
 __version__ = "0.0.1"
@@ -72,7 +74,7 @@ def json_process(json, id):
 		if i in ('avatar') and not None:
 			json[i] = f'https://cdn.discordapp.com/avatars/{id}/{json[i]}'
 		elif i in ('banner') and not None:
-			json[i] = f'https://cdn.discordapp.com/avatars/{id}/{json[i]}'
+			json[i] = f'https://cdn.discordapp.com/banners/{id}/{json[i]}'
 		
 		json[i.capitalize()] = json.pop(i)
 		
@@ -93,7 +95,7 @@ def main():
     
 	args = parser.parse_args()
       
-	print(f'{Fore.BLUE} Looking up the ID:{Fore.RESET} {args.userid}')
+	print(f'{Back.CYAN}{Fore.BLACK}Looking up the ID:{Style.RESET_ALL} {args.userid}')
 	json = idlookup(args.userid)
 
 	if args.raw:
@@ -104,7 +106,7 @@ def main():
 	if json:
 		processed = json_process(json, args.userid)
 		for i in processed:
-			print(f'{Fore.BLUE}{i} :{Fore.RESET} {processed[i]}')
+			print(f'{Fore.CYAN}{i}{Fore.RESET} : {processed[i]}')
 		
 
 
