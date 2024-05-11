@@ -8,9 +8,6 @@ import json
 __version__ = "0.0.1"
 module_name = "Discord ID lookup for CLI."
 
-# For things that you find unnecessary to appear in the results
-unnecessary_key = ['clan']
-
 # Getting bot token from token.txt
 token: str
 with open('token.txt', 'r') as f:
@@ -61,6 +58,29 @@ def flagconvert(flag):
 	
 	return flist
 
+# Processing the json for a nicer output.
+def json_process(json, id):
+	for i in list(json):
+		if 'flags' in i:
+			if json[i] <= 0:
+				json[i] = 'None'
+			else:
+				json[i] = flagconvert(json[i])
+				for ind, ite in enumerate(json[i]):
+					json[i][ind] = ite.replace('_', ' ').capitalize()
+
+		if i in ('avatar') and not None:
+			json[i] = f'https://cdn.discordapp.com/avatars/{id}/{json[i]}'
+		elif i in ('banner') and not None:
+			json[i] = f'https://cdn.discordapp.com/avatars/{id}/{json[i]}'
+		
+		json[i.capitalize()] = json.pop(i)
+		
+		if '_' in i:
+			json[i.replace('_', ' ').capitalize()] = json.pop(i.capitalize())
+	
+	return json
+
 # The main code
 def main():
 	parser = ArgumentParser(
@@ -69,13 +89,22 @@ def main():
 	)
 
 	parser.add_argument('userid', help='The ID of the user you are looking up information on.', type=int)
+	parser.add_argument('--raw', '-r', help='Outputs raw json instead of something more readable.', action='store_true', dest='raw')
     
 	args = parser.parse_args()
       
 	print(f'{Fore.BLUE} Looking up the ID:{Fore.RESET} {args.userid}')
 	json = idlookup(args.userid)
+
+	if args.raw:
+		if json:
+			print(f'{Fore.CYAN}{json}{Fore.RESET}')
+			exit()
+
 	if json:
-		print(json)
+		processed = json_process(json, args.userid)
+		for i in processed:
+			print(f'{Fore.BLUE}{i} :{Fore.RESET} {processed[i]}')
 		
 
 
